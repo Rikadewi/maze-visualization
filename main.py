@@ -35,3 +35,14 @@ while (count<2 and i<row):
         j+=1
     i+=1
 
+BFS()
+
+def printMap():
+    for row in arrInput:
+        for col in row:
+            print(col, end="")
+        print()
+
+def BFS():
+    queue = []
+    

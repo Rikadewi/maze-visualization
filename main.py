@@ -1,48 +1,175 @@
-arrInput = [
-    '11111111111',
-    '00001000001',
-    '11101011101',
-    '10001010001',
-    '10111010111',
-    '10100010001',
-    '10101010101',
-    '10101010101',
-    '10101010101',
-    '10001010100',
-    '11111111111']
+from copy import deepcopy
+
+def printX(skk): print("\033[1;35;47m{}\033[00m".format(skk), end="")
+def print1(skk): print("\033[1;34;40m{}\033[00m".format(skk), end="")
+def print0(skk): print("\033[1;37;47m{}\033[00m".format(skk), end="")
+def printExit(skk): print("\033[1;31;41m{}\033[00m".format(skk), end="")
+def printEntrance(skk): print("\033[1;32;42m{}\033[00m".format(skk), end="")
+
+map = [
+    ['1','1','1','1','1','1','1','1','1','1','1'],
+    ['0','0','0','0','1','0','0','0','0','0','1'],
+    ['1','1','1','0','1','0','1','1','1','0','1'],
+    ['1','0','0','0','1','0','1','0','0','0','1'],
+    ['1','0','1','1','1','0','1','0','1','1','1'],
+    ['1','0','1','0','0','0','1','0','0','0','1'],
+    ['1','0','1','0','1','0','1','0','1','0','1'],
+    ['1','0','1','0','1','0','1','0','1','0','1'],
+    ['1','0','1','0','1','0','1','0','1','0','1'],
+    ['1','0','0','0','1','0','1','0','1','0','0'],
+    ['1','1','1','1','1','1','1','1','1','1','1']]
 
 #cek pintu masuk dan keluar
 count  = 0
 door =[]
 i = 0
-row = len(arrInput)
-col = len(arrInput[0])
+row = len(map)
+col = len(map[0])
 while (count<2 and i<row):
     j = 0
     while(count<2 and j<col):
-        if(i == 0 and arrInput[i][j] == '0'):
+        if(i == 0 and map[i][j] == '0'):
             door.append([i,j])
             count+=1
-        elif(j == 0 and arrInput[i][j] == '0'):
+        elif(j == 0 and map[i][j] == '0'):
             door.append([i,j])
             count+=1
-        elif(i == row-1 and arrInput[i][j] == '0'):
+        elif(i == row-1 and map[i][j] == '0'):
             door.append([i,j])
             count+=1
-        elif(j == col-1 and arrInput[i][j] == '0'):
+        elif(j == col-1 and map[i][j] == '0'):
             door.append([i,j])
             count+=1
         j+=1
     i+=1
 
-BFS()
+ 
+copyMap = deepcopy(map)
 
-def printMap():
-    for row in arrInput:
-        for col in row:
-            print(col, end="")
+arrNode = []
+
+class Node:
+    #ctor
+    def __init__(self, x, y, addlist):
+        self.id = len(arrNode)
+        self.x = x
+        self.y = y
+        self.list = [] + addlist
+    #menambah list
+    def add(self, x):
+        self.list.append(x)
+
+#catatan semua node pada map
+arrNode = [
+    Node(door[0][0], door[0][1], [0]), #pintu masuk
+]
+
+#menyimpan antrian id simpul hidup
+queueIdNode = [0]
+
+
+
+#mengembalikan jumlah jalan yang belum dieksplor
+def cekSekitar(x, y):
+    count  = 0
+    if(x != row-1): 
+        if(map[x+1][y] == '0'): count+=1
+    if(x != 0): 
+        if(map[x-1][y] == '0'): count+=1
+    if(y != col-1): 
+        if(map[x][y+1] == '0'): count+=1
+    if(y != 0): 
+        if(map[x][y-1] == '0'): count+=1
+    return count
+
+#mengembalikan posisi jalan yang belum dieksplor
+def cekJalan(x,y):
+    if(x != row-1): 
+        if(map[x+1][y] == '0'): 
+            map[x+1][y] = 'X'
+            return x+1, y
+    if(x != 0): 
+        if(map[x-1][y] == '0'): 
+            map[x-1][y] = 'X'
+            return x-1, y
+    if(y != col-1): 
+        if(map[x][y+1] == '0'): 
+            map[x][y+1] = 'X'
+            return x, y+1
+    if(y != 0): 
+        if(map[x][y-1] == '0'): 
+            map[x][y-1] = 'X'
+            return x, y-1
+
+
+#boolean untuk menyimpan pintu keluar ditemukan
+found = False
+
+#menyimpan path menuju pintu keluar
+listOutput = []
+
+#mengunjungi jalan
+def kunjungi(x, y, id):
+    count = cekSekitar(x, y)
+    if(count>0):
+        if(count == 1): 
+            i, j = cekJalan(x, y)
+            kunjungi(i, j, id)
+        else:
+            while(count>0):
+                i, j = cekJalan(x, y)
+                idx = len(arrNode)
+                newList = [] + arrNode[id].list
+                newList.append(idx)
+                arrNode.append(Node(i, j, newList))
+                queueIdNode.append(idx)
+                count-=1
+    else:
+        if (x == door[1][0] and y == door[1][1]):
+            found = True
+            listOutput.append(arrNode[id].list)
+
+#prosedur BFS
+def BFS():
+    map[door[0][0]][door[0][1]] = 'X'
+    while len(queueIdNode) != 0 and not(found):
+        idx = queueIdNode[0]
+        kunjungi(arrNode[idx].x, arrNode[idx].y, idx)
+        queueIdNode.pop(0)
+
+BFS()
+list = listOutput[0]
+map = copyMap
+
+#menandai jalan menuju ke pintu keluar
+x = door[0][0]
+y = door[0][1]
+count = cekSekitar(x,y)
+while(count!= 0):
+    map[x][y] = 'X'
+    if(count > 1):
+        list.pop(0)
+        x = arrNode[list[0]].x
+        y = arrNode[list[0]].y
+    else:
+        x, y = cekJalan(x, y)
+    count = cekSekitar(x,y)
+
+#untuk print isi matriks
+def printMap(matriks):
+    for x in range (0, row):
+        for y in range (0, col):
+            if(x == door[0][0] and y == door[0][1]):
+                printEntrance("  ")
+            elif(x == door[1][0] and y == door[1][1]):
+                printExit("  ")
+            elif(matriks[x][y] == 'X'):
+                printX('x ')
+            elif(matriks[x][y] == '1'):
+                print1("  ")
+            elif(matriks[x][y] == '0'):
+                print0("  ")
+            
         print()
 
-def BFS():
-    queue = []
-    
+printMap(map)

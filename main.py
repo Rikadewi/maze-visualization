@@ -62,10 +62,14 @@ while (count<2 and i<row):
         j+=1
     i+=1
 
- 
+
 copyMap = deepcopy(map)
 
 arrNode = []
+
+#Fungi yang mengembalikan manhattan distance dari 2 buah titik
+def getManhattan(x1,y1,x2,y2):
+    return abs((y2-y1)+(x2-x1))
 
 class Node:
     #ctor
@@ -74,6 +78,8 @@ class Node:
         self.x = x
         self.y = y
         self.list = [] + addlist
+        self.g = 0 #nilai dari start ke node bersangkutan
+        self.h = getManhattan(door[1][0],door[1][1],self.x,self.y) #nilai dari node bersangkutan ke titik end (Manhattan)
     #menambah list
     def add(self, x):
         self.list.append(x)
@@ -83,6 +89,11 @@ arrNode = [
     Node(door[0][0], door[0][1], [0]), #pintu masuk
 ]
 
+# print(door[0][0])
+# print(door[1])
+# print(arrNode)
+# print(door[1][0]-door[0][0])
+
 #menyimpan antrian id simpul hidup
 queueIdNode = [0]
 
@@ -91,31 +102,31 @@ queueIdNode = [0]
 #mengembalikan jumlah jalan yang belum dieksplor
 def cekSekitar(x, y):
     count  = 0
-    if(x != row-1): 
+    if(x != row-1): #down
         if(map[x+1][y] == '0'): count+=1
-    if(x != 0): 
+    if(x != 0): #up
         if(map[x-1][y] == '0'): count+=1
-    if(y != col-1): 
+    if(y != col-1): #right 
         if(map[x][y+1] == '0'): count+=1
-    if(y != 0): 
+    if(y != 0): #left
         if(map[x][y-1] == '0'): count+=1
     return count
 
 #mengembalikan posisi jalan yang belum dieksplor
 def cekJalan(x,y):
-    if(x != row-1): 
+    if(x != row-1): #down menjadi X
         if(map[x+1][y] == '0'): 
             map[x+1][y] = 'X'
             return x+1, y
-    if(x != 0): 
+    if(x != 0): #up menjadi X
         if(map[x-1][y] == '0'): 
             map[x-1][y] = 'X'
             return x-1, y
-    if(y != col-1): 
+    if(y != col-1): #right menjadi X 
         if(map[x][y+1] == '0'): 
             map[x][y+1] = 'X'
             return x, y+1
-    if(y != 0): 
+    if(y != 0): #left menjadi X
         if(map[x][y-1] == '0'): 
             map[x][y-1] = 'X'
             return x, y-1
@@ -133,6 +144,7 @@ def kunjungi(x, y, id):
     if(count>0):
         if(count == 1): 
             i, j = cekJalan(x, y) #mengembalikan kordinat x dan y dari nol yang pertama ditemui secara
+            # arrNode[id].g= arrNode[id].g+1
             kunjungi(i, j, id) #rekursif
         else:
             while(count>0): #kalau lebih dari 1
@@ -141,6 +153,9 @@ def kunjungi(x, y, id):
                 newList = [] + arrNode[id].list #akses list parent nya
                 newList.append(idx) #
                 arrNode.append(Node(i, j, newList))
+                # print(arrNode[id].x)
+                # print(arrNode[id].y)
+                # print(arrNode[id].h)
                 queueIdNode.append(idx) #append ke id node
                 count-=1
     else:
@@ -155,6 +170,10 @@ def BFS():
         idx = queueIdNode[0] #diambil
         kunjungi(arrNode[idx].x, arrNode[idx].y, idx) # kunjungi sampai bingung
         queueIdNode.pop(0)
+
+# def AStar():
+#     map[door[0][0]][door[0][1]] = 'X'
+#     while len(queueIdNode) != 0 and not(found):
 
 # BFS()
 # list = listOutput[0]
@@ -191,6 +210,7 @@ def printMap(matriks):
             #     print0("  ")
             #################################
 
+            #SEMENTARA KARENA WINDOWS
             if(x == door[0][0] and y == door[0][1]):
                 print("X",end='')
             elif(x == door[1][0] and y == door[1][1]):
@@ -205,6 +225,7 @@ def printMap(matriks):
         print()
 
 # printMap(map)
+print(getManhattan(door[0][1],door[0][0],door[1][0],door[1][1]))
 
 print('Please choose solve method:')
 print('1. BFS')

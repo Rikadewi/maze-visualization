@@ -1,3 +1,7 @@
+# Nama / NIM    : Lukas Kurnia Jonathan / 13517006
+#               : Rika Dewi / 13517147
+# Tugas Kecil Strategi Algoritma, "Maze Solver"
+
 from copy import deepcopy
 
 def printX(skk): print("\033[1;35;47m{}\033[00m".format(skk), end="")
@@ -6,18 +10,33 @@ def print0(skk): print("\033[1;37;47m{}\033[00m".format(skk), end="")
 def printExit(skk): print("\033[1;31;41m{}\033[00m".format(skk), end="")
 def printEntrance(skk): print("\033[1;32;42m{}\033[00m".format(skk), end="")
 
-map = [
-    ['1','1','1','1','1','1','1','1','1','1','1'],
-    ['0','0','0','0','1','0','0','0','0','0','1'],
-    ['1','1','1','0','1','0','1','1','1','0','1'],
-    ['1','0','0','0','1','0','1','0','0','0','1'],
-    ['1','0','1','1','1','0','1','0','1','1','1'],
-    ['1','0','1','0','0','0','1','0','0','0','1'],
-    ['1','0','1','0','1','0','1','0','1','0','1'],
-    ['1','0','1','0','1','0','1','0','1','0','1'],
-    ['1','0','1','0','1','0','1','0','1','0','1'],
-    ['1','0','0','0','1','0','1','0','1','0','0'],
-    ['1','1','1','1','1','1','1','1','1','1','1']]
+#Main Program
+print('Welcome to Maze Solver !')
+print('===========================')
+print('Please input your maze file (.txt) : ')
+print('*NOTE: Pastikan file eksternal tidak memiliki newline di akhir file* ')
+namaFile = input()
+
+#Membaca file eksternal berisi map
+with open(namaFile, 'r') as f:
+    map = [list(line) for line in f]
+for i in range(len(map)-1):  #Menghilangkan '\n' yang ikut terbaca
+    map[i].pop()
+
+
+
+# map = [
+#     ['1','1','1','1','1','1','1','1','1','1','1'],
+#     ['0','0','0','0','1','0','0','0','0','0','1'],
+#     ['1','1','1','0','1','0','1','1','1','0','1'],
+#     ['1','0','0','0','1','0','1','0','0','0','1'],
+#     ['1','0','1','1','1','0','1','0','1','1','1'],
+#     ['1','0','1','0','0','0','1','0','0','0','1'],
+#     ['1','0','1','0','1','0','1','0','1','0','1'],
+#     ['1','0','1','0','1','0','1','0','1','0','1'],
+#     ['1','0','1','0','1','0','1','0','1','0','1'],
+#     ['1','0','0','0','1','0','1','0','1','0','0'],
+#     ['1','1','1','1','1','1','1','1','1','1','1']]
 
 #cek pintu masuk dan keluar
 count  = 0
@@ -110,19 +129,19 @@ listOutput = []
 
 #mengunjungi jalan
 def kunjungi(x, y, id):
-    count = cekSekitar(x, y)
+    count = cekSekitar(x, y) #menghitung nol disekitar
     if(count>0):
         if(count == 1): 
-            i, j = cekJalan(x, y)
-            kunjungi(i, j, id)
+            i, j = cekJalan(x, y) #mengembalikan kordinat x dan y dari nol yang pertama ditemui secara
+            kunjungi(i, j, id) #rekursif
         else:
-            while(count>0):
-                i, j = cekJalan(x, y)
-                idx = len(arrNode)
-                newList = [] + arrNode[id].list
-                newList.append(idx)
+            while(count>0): #kalau lebih dari 1
+                i, j = cekJalan(x, y) #mengembalikan nol yang pertama dia temui lalu mengubah menjadi X
+                idx = len(arrNode) #menyimpan id node baru
+                newList = [] + arrNode[id].list #akses list parent nya
+                newList.append(idx) #
                 arrNode.append(Node(i, j, newList))
-                queueIdNode.append(idx)
+                queueIdNode.append(idx) #append ke id node
                 count-=1
     else:
         if (x == door[1][0] and y == door[1][1]):
@@ -133,43 +152,82 @@ def kunjungi(x, y, id):
 def BFS():
     map[door[0][0]][door[0][1]] = 'X'
     while len(queueIdNode) != 0 and not(found):
-        idx = queueIdNode[0]
-        kunjungi(arrNode[idx].x, arrNode[idx].y, idx)
+        idx = queueIdNode[0] #diambil
+        kunjungi(arrNode[idx].x, arrNode[idx].y, idx) # kunjungi sampai bingung
         queueIdNode.pop(0)
 
-BFS()
-list = listOutput[0]
-map = copyMap
+# BFS()
+# list = listOutput[0]
+# map = copyMap
 
 #menandai jalan menuju ke pintu keluar
-x = door[0][0]
-y = door[0][1]
-count = cekSekitar(x,y)
-while(count!= 0):
-    map[x][y] = 'X'
-    if(count > 1):
-        list.pop(0)
-        x = arrNode[list[0]].x
-        y = arrNode[list[0]].y
-    else:
-        x, y = cekJalan(x, y)
-    count = cekSekitar(x,y)
+# x = door[0][0]
+# y = door[0][1]
+# count = cekSekitar(x,y)
+# while(count!= 0):
+#     map[x][y] = 'X'
+#     if(count > 1):
+#         list.pop(0)
+#         x = arrNode[list[0]].x
+#         y = arrNode[list[0]].y
+#     else:
+#         x, y = cekJalan(x, y)
+#     count = cekSekitar(x,y)
 
 #untuk print isi matriks
 def printMap(matriks):
     for x in range (0, row):
         for y in range (0, col):
+            # YANG BENER
+            # if(x == door[0][0] and y == door[0][1]):
+            #     printEntrance("  ")
+            # elif(x == door[1][0] and y == door[1][1]):
+            #     printExit("  ")
+            # elif(matriks[x][y] == 'X'):
+            #     printX('x ')
+            # elif(matriks[x][y] == '1'):
+            #     print1("  ")
+            # elif(matriks[x][y] == '0'):
+            #     print0("  ")
+            #################################
+
             if(x == door[0][0] and y == door[0][1]):
-                printEntrance("  ")
+                print("X",end='')
             elif(x == door[1][0] and y == door[1][1]):
-                printExit("  ")
+                print("X",end='')
             elif(matriks[x][y] == 'X'):
-                printX('x ')
+                print('x',end='')
             elif(matriks[x][y] == '1'):
-                print1("  ")
+                print("=",end='')
             elif(matriks[x][y] == '0'):
-                print0("  ")
+                print("0",end='')
             
         print()
 
-printMap(map)
+# printMap(map)
+
+print('Please choose solve method:')
+print('1. BFS')
+print('2. A* ')
+print()
+
+S = input('>> ')
+S = int(S)
+if(S == 1):
+    BFS()
+    list = listOutput[0]
+    map = copyMap
+    x = door[0][0]
+    y = door[0][1]
+    count = cekSekitar(x,y)
+    while(count!= 0):
+        map[x][y] = 'X'
+        if(count > 1):
+            list.pop(0)
+            x = arrNode[list[0]].x
+            y = arrNode[list[0]].y
+        else:
+            x, y = cekJalan(x, y)
+        count = cekSekitar(x,y)
+
+    printMap(map)

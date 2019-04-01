@@ -3,6 +3,7 @@
 # Tugas Kecil Strategi Algoritma, "Maze Solver"
 
 from copy import deepcopy
+from sys import platform
 
 def printX(skk): print("\033[1;35;47m{}\033[00m".format(skk), end="")
 def print1(skk): print("\033[1;34;40m{}\033[00m".format(skk), end="")
@@ -23,21 +24,6 @@ with open(namaFile, 'r') as f:
     map = [list(line) for line in f]
 for i in range(len(map)-1):  #Menghilangkan '\n' yang ikut terbaca
     map[i].pop()
-
-
-
-# map = [
-#     ['1','1','1','1','1','1','1','1','1','1','1'],
-#     ['0','0','0','0','1','0','0','0','0','0','1'],
-#     ['1','1','1','0','1','0','1','1','1','0','1'],
-#     ['1','0','0','0','1','0','1','0','0','0','1'],
-#     ['1','0','1','1','1','0','1','0','1','1','1'],
-#     ['1','0','1','0','0','0','1','0','0','0','1'],
-#     ['1','0','1','0','1','0','1','0','1','0','1'],
-#     ['1','0','1','0','1','0','1','0','1','0','1'],
-#     ['1','0','1','0','1','0','1','0','1','0','1'],
-#     ['1','0','0','0','1','0','1','0','1','0','0'],
-#     ['1','1','1','1','1','1','1','1','1','1','1']]
 
 #cek pintu masuk dan keluar
 count  = 0
@@ -96,11 +82,6 @@ arrNode = [
 ]
 arrNode[0].setF(arrNode[0].g,arrNode[0].h)
 
-# print(door[0][0])
-# print(door[1])
-# print(arrNode)
-# print(door[1][0]-door[0][0])
-
 #menyimpan antrian id simpul hidup
 queueIdNode = [0]
 
@@ -138,6 +119,7 @@ def cekJalan(x,y):
 
 
 #boolean untuk menyimpan pintu keluar ditemukan
+global found
 found = False
 
 #menyimpan path menuju pintu keluar
@@ -149,7 +131,6 @@ def kunjungi(x, y, id, listG , code):
     if(count>0):
         if(count == 1): 
             i, j = cekJalan(x, y) #mengembalikan kordinat x dan y dari nol yang pertama ditemui secara
-            # arrNode[id].g= arrNode[id].g+1
             listG.append(listG[0]+1)
             listG.pop(0)
             kunjungi(i, j, id, listG , code) #rekursif
@@ -160,7 +141,7 @@ def kunjungi(x, y, id, listG , code):
                 i, j = cekJalan(x, y) #mengembalikan nol yang pertama dia temui lalu mengubah menjadi X
                 idx = len(arrNode) #menyimpan id node baru
                 newList = [] + arrNode[id].list #akses list parent nya
-                newList.append(idx) #
+                newList.append(idx) 
                 arrNode.append(Node(i, j, newList))
                 arrNode[idx].setG(listG[0]+1)
                 arrNode[idx].setF(arrNode[idx].g,arrNode[idx].h)
@@ -174,25 +155,14 @@ def kunjungi(x, y, id, listG , code):
                                 break
                             else:
                                 i+=1
-                        
-                        # print('target = ',i)
                         if(len(queueIdNode)==1 and lebihkecil):
                             queueIdNode.insert(0,idx)
-                            # print(100)
                         elif((len(queueIdNode)==1) and not(lebihkecil)): 
                             queueIdNode.append(idx)
-                            # print(200)
                         elif(i == (len(queueIdNode)) and not(lebihkecil)):
                             queueIdNode.append(idx)
-                            # print(300)
                         else:
                             queueIdNode.insert(i,idx) 
-                            # print(400)
-                        
-                        # if(len(queueIdNode)==1):
-                        #     queueIdNode.append(idx)
-                        # else:
-                        #     queueIdNode.insert(target,idx) 
                 else:
                     queueIdNode.append(idx) #append ke id node
                 count-=1
@@ -209,7 +179,7 @@ def BFS():
     listG=[0]
     while len(queueIdNode) != 0 and not(found):
         idx = queueIdNode[0] #diambil
-        kunjungi(arrNode[idx].x, arrNode[idx].y, idx, listG, 1) # kunjungi sampai bingung
+        kunjungi(arrNode[idx].x, arrNode[idx].y, idx, listG, 1) # kunjungi simpul hidup
         queueIdNode.pop(0)
 
 def AStar():
@@ -217,71 +187,44 @@ def AStar():
     listG=[0]
     while len(queueIdNode) != 0 and not(found):
         idx = queueIdNode[0] #diambil
-        # print(queueIdNode)
-        kunjungi(arrNode[idx].x, arrNode[idx].y, idx, listG, 2) # kunjungi sampai bingung
-        # print(queueIdNode)
+        kunjungi(arrNode[idx].x, arrNode[idx].y, idx, listG, 2) # kunjungi simpul hidup
         queueIdNode.remove(idx)
-        # print(queueIdNode)
-
-
-
-# BFS()
-# list = listOutput[0]
-# map = copyMap
-
-#menandai jalan menuju ke pintu keluar
-# x = door[0][0]
-# y = door[0][1]
-# count = cekSekitar(x,y)
-# while(count!= 0):
-#     map[x][y] = 'X'
-#     if(count > 1):
-#         list.pop(0)
-#         x = arrNode[list[0]].x
-#         y = arrNode[list[0]].y
-#     else:
-#         x, y = cekJalan(x, y)
-#     count = cekSekitar(x,y)
 
 #untuk print isi matriks
 def printMap(matriks):
     langkah=0
     for x in range (0, row):
         for y in range (0, col):
-            # YANG BENER, NANTI RIKA UNCOMMENT YANG INI AJA
-            # if(x == door[0][0] and y == door[0][1]):
-            #     printEntrance("  ")
-            # elif(x == door[1][0] and y == door[1][1]):
-            #     printExit("  ")
-            # elif(matriks[x][y] == 'X'):
-            #     printX('x ')
-            # elif(matriks[x][y] == '1'):
-            #     print1("  ")
-            # elif(matriks[x][y] == '0'):
-            #     print0("  ")
-            #################################
-
-            #SEMENTARA KARENA WINDOWS, NANTI RIKA COMMENT IN YANG INI
-            if(x == door[0][0] and y == door[0][1]):
-                print("X",end='')
-                langkah+=1
-            elif(x == door[1][0] and y == door[1][1]):
-                print("X",end='')
-                langkah+=1
-            elif(matriks[x][y] == 'X'):
-                print('x',end='')
-                langkah+=1
-            elif(matriks[x][y] == '1'):
-                print("=",end='')
-                # langkah+=1
-            elif(matriks[x][y] == '0'):
-                print("0",end='')
-                # langkah+=1
-            ###################################
+            if platform == "linux" or platform == "linux2":
+                if(x == door[0][0] and y == door[0][1]):
+                    printEntrance("  ")
+                    langkah+=1
+                elif(x == door[1][0] and y == door[1][1]):
+                    printExit("  ")
+                    langkah+=1
+                elif(matriks[x][y] == 'X'):
+                    printX('x ')
+                    langkah+=1
+                elif(matriks[x][y] == '1'):
+                    print1("  ")
+                elif(matriks[x][y] == '0' or matriks[x][y] == '2'):
+                    print0("  ")
+            else:
+                if(x == door[0][0] and y == door[0][1]):
+                    print("X",end='')
+                    langkah+=1
+                elif(x == door[1][0] and y == door[1][1]):
+                    print("X",end='')
+                    langkah+=1
+                elif(matriks[x][y] == 'X'):
+                    print('x',end='')
+                    langkah+=1
+                elif(matriks[x][y] == '1'):
+                    print("=",end='')
+                elif(matriks[x][y] == '0' or matriks[x][y] == '2'):
+                    print("0",end='')
         print()
     print('Jumlah langkah =',langkah)
-# printMap(map)
-# print(getManhattan(door[0][1],door[0][0],door[1][0],door[1][1]))
 
 print('Please choose solve method:')
 print('1. BFS')
@@ -295,38 +238,29 @@ if(S == 1):
 if(S == 2):
     AStar()
 
-# for i in range(len(arrNode)):
-#     print(arrNode[i].x)
-#     print(arrNode[i].y)
-#     print(arrNode[i].h)
-#     print(arrNode[i].g)
-#     print(arrNode[i].f)
-#     print(arrNode[i].list)
-#     print()
-
-
-# print(listOutput)
 list = listOutput[0]
-# print(list)
 map = copyMap
+
 x = door[0][0]
 y = door[0][1]
 count = cekSekitar(x,y)
 
-
-
 while(count!= 0):
     map[x][y] = 'X'
-    if(count > 1 and len(list)!=0): #EDIT karena ada error dia ngeakses padahal sudah kosong
+    if(count > 1 and len(list)!=0): 
         list.pop(0) 
-        # print(list)
-        if(len(list)!=0): #EDIT karena ada error dia ngeakses padahal sudah kosong
+        if(len(list)!=0):
+            if (S == 1):
+                while(count>0):
+                    i, j = cekJalan(x, y)
+                    if(i != arrNode[list[0]].x or j != arrNode[list[0]].y):
+                        map[i][j] = '2'
+                    count -=1
             x = arrNode[list[0]].x
-            # print(x)
             y = arrNode[list[0]].y
-            # print(y)
     else:
         x, y = cekJalan(x, y)
     count = cekSekitar(x,y)
 
 printMap(map)
+
